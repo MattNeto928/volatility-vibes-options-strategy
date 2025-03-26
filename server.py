@@ -76,10 +76,23 @@ def get_upcoming_earnings():
         except ValueError:
             company_count = 15  # Default to 15 companies if invalid
         
-        # If Perplexity API key is not set, return an error
-        if not PERPLEXITY_API_KEY:
+        # Check for API key in request headers first (takes precedence)
+        api_key = request.headers.get('X-Perplexity-API-Key')
+        
+        # Fall back to .env file if no key in headers
+        if not api_key:
+            api_key = PERPLEXITY_API_KEY
+            
+        # If no API key found in either place, return an error
+        if not api_key:
             return jsonify({
-                "error": "Perplexity API key not found. Please set PERPLEXITY_API_KEY in .env file."
+                "error": "Perplexity API key not found. Please set PERPLEXITY_API_KEY in .env file or provide it in the API Key field under 'Show API Key Settings'."
+            }), 400
+            
+        # Check if the API key looks valid (basic validation)
+        if not api_key.startswith('pplx-'):
+            return jsonify({
+                "error": "Invalid Perplexity API key format. API keys should start with 'pplx-'."
             }), 400
             
         # Define the prompt for Sonar API
@@ -123,7 +136,7 @@ def get_upcoming_earnings():
             }
             
             headers = {
-                "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+                "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
             }
             
@@ -132,13 +145,44 @@ def get_upcoming_earnings():
             
         except Exception as e:
             print(f"Error using Perplexity Sonar API: {str(e)}")
-            return jsonify({"error": f"Error using Perplexity Sonar API: {str(e)}"}), 500
+            error_message = str(e)
+            
+            # Enhanced error messages for common API issues
+            if "401" in error_message:
+                return jsonify({"error": "API key authentication failed. Please check that your Perplexity API key is valid."}), 401
+            elif "403" in error_message:
+                return jsonify({"error": "API access forbidden. Your Perplexity API key may have insufficient permissions or has reached its limit."}), 403
+            elif "429" in error_message:
+                return jsonify({"error": "Too many requests. You've exceeded Perplexity API rate limits. Please try again later."}), 429
+            else:
+                return jsonify({"error": f"Error using Perplexity Sonar API: {error_message}"}), 500
         
         if response.status_code != 200:
-            return jsonify({
-                "error": f"Perplexity API error: {response.status_code}",
-                "details": response.text
-            }), 500
+            error_message = "Unknown error"
+            try:
+                error_data = response.json()
+                if "error" in error_data:
+                    error_message = error_data["error"].get("message", "Unknown error")
+            except:
+                error_message = response.text[:200] + "..." if len(response.text) > 200 else response.text
+            
+            # Handle specific HTTP error codes with user-friendly messages
+            if response.status_code == 401:
+                return jsonify({
+                    "error": "Authentication failed. Your Perplexity API key is invalid or expired."
+                }), 401
+            elif response.status_code == 403:
+                return jsonify({
+                    "error": "Access denied. Your Perplexity API key doesn't have permission to use this feature."
+                }), 403
+            elif response.status_code == 429:
+                return jsonify({
+                    "error": "Rate limit exceeded. Please wait a moment before trying again."
+                }), 429
+            else:
+                return jsonify({
+                    "error": f"Perplexity API error (HTTP {response.status_code}): {error_message}"
+                }), 500
             
         data = response.json()
         

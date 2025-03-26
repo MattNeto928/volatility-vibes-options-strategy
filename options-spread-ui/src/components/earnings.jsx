@@ -798,6 +798,8 @@ const Earnings = () => {
   const [days, setDays] = useState(7);
   const [sector, setSector] = useState('');
   const [companyCount, setCompanyCount] = useState(15);
+  const [apiKey, setApiKey] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
   
   // Active tab
   const [activeTabIndex, setActiveTabIndex] = useState(0);
@@ -940,17 +942,50 @@ const Earnings = () => {
     setEarningsLoading(true);
     setEarningsError(null);
     
+    // If API key section is not shown but user attempts to fetch, show it if likely needed
+    if (!showApiKey && !apiKey) {
+      setShowApiKey(true);
+    }
+    
     try {
       const url = new URL('http://localhost:5000/upcoming-earnings');
       url.searchParams.append('days', days);
       url.searchParams.append('count', companyCount);
       if (sector) url.searchParams.append('sector', sector);
       
-      const response = await fetch(url.toString());
+      // Add API key to request headers if provided in UI
+      const headers = {};
+      if (apiKey) {
+        headers['X-Perplexity-API-Key'] = apiKey;
+      }
+      
+      const response = await fetch(url.toString(), {
+        headers
+      });
+      
+      let errorData;
       
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch upcoming earnings: ${errorText}`);
+        try {
+          // Try to parse as JSON for structured error messages
+          errorData = await response.json();
+          if (errorData && errorData.error) {
+            // Check if it's an API key related error and auto-show the API key input
+            if (errorData.error.toLowerCase().includes('api key') && !showApiKey) {
+              setShowApiKey(true);
+            }
+            throw new Error(errorData.error);
+          } else {
+            throw new Error(`API Error (${response.status})`);
+          }
+        } catch (jsonError) {
+          // If not JSON or no error field, fall back to text
+          if (!(jsonError instanceof SyntaxError)) {
+            throw jsonError;
+          }
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch upcoming earnings: ${errorText}`);
+        }
       }
       
       const data = await response.json();
@@ -1181,8 +1216,58 @@ const Earnings = () => {
               </div>
             </div>
             
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              <p>Uses Perplexity Sonar API to find upcoming earnings releases. You must set your PERPLEXITY_API_KEY in the .env file.</p>
+            <div className="flex items-center mt-2 mb-1">
+              <button 
+                onClick={() => setShowApiKey(!showApiKey)} 
+                className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center"
+              >
+                {showApiKey ? 'Hide API Key Settings' : 'Show API Key Settings'}
+                <span className="ml-1">{showApiKey ? '▲' : '▼'}</span>
+              </button>
+            </div>
+            
+            {showApiKey && (
+              <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Perplexity API Key (Optional)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="Enter Perplexity API Key"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-gray-800 dark:text-white bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    onClick={() => setApiKey('')}
+                    className="px-3 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500"
+                    title="Clear API Key"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="mt-2 text-xs">
+                  {apiKey ? (
+                    <div className="text-green-600 dark:text-green-400 flex items-center">
+                      <FaCheck className="mr-1" /> API Key set for this session
+                    </div>
+                  ) : (
+                    <div className="text-gray-600 dark:text-gray-400">
+                      Enter your API key here or set it in the .env file as PERPLEXITY_API_KEY. This browser-entered key takes precedence over the .env file.
+                    </div>
+                  )}
+                  {earningsError && earningsError.includes("API key") && (
+                    <div className="mt-1 text-red-600 dark:text-red-400 flex items-center">
+                      <FaInfoCircle className="mr-1" /> {earningsError}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+              <p>Uses Perplexity Sonar API to find upcoming earnings releases.</p>
             </div>
           </div>
           

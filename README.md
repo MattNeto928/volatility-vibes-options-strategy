@@ -38,7 +38,28 @@ A web application for analyzing stocks to identify potential options spread oppo
 - Node.js 18+
 - npm or yarn
 
-### Backend Setup
+### Quick Start (Recommended)
+
+Use the included setup script to install all dependencies and start both servers with a single command:
+
+```bash
+# Make the script executable
+chmod +x start.sh
+
+# Run the script
+./start.sh
+```
+
+The script will:
+1. Check system requirements
+2. Set up the Python virtual environment
+3. Install all backend and frontend dependencies
+4. Create a sample `.env` file if needed
+5. Start both the Flask backend and React frontend servers
+
+### Manual Setup
+
+#### Backend Setup
 
 1. Clone the repository:
    ```
@@ -67,7 +88,7 @@ A web application for analyzing stocks to identify potential options spread oppo
    python server.py
    ```
 
-### Frontend Setup
+#### Frontend Setup
 
 1. Navigate to the React app directory:
    ```
@@ -88,6 +109,30 @@ A web application for analyzing stocks to identify potential options spread oppo
    ```
    http://localhost:5173
    ```
+
+## API Key Management
+
+The application uses the Perplexity Sonar API to fetch upcoming earnings data. You have two options for providing your API key:
+
+### Option 1: Environment Variable (Recommended for Development)
+
+Create a `.env` file in the project root with:
+```
+PERPLEXITY_API_KEY=your_api_key_here
+```
+
+### Option 2: Web Interface
+
+The application provides a user-friendly way to enter your API key directly in the UI:
+
+1. Go to the "Upcoming Earnings" tab
+2. Click "Show API Key Settings"
+3. Enter your Perplexity API key
+4. The key will be used for all requests in your current session
+
+The UI-provided key takes precedence over the environment variable. This is convenient for testing or when multiple users need to use their own API keys.
+
+> **Note:** Perplexity API keys start with `pplx-`. You can obtain a key from [Perplexity AI](https://www.perplexity.ai/)
 
 ## Strategy Calculation Logic
 

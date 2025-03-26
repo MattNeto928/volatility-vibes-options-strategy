@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+:root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Custom tooltip styling for charts */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  border-radius: 0.5rem !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(219, 234, 254, 1) !important;
+  padding: 0.75rem !important;
+  transition: transform 0.2s ease !important;
+  transform: translateY(-4px) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip .recharts-tooltip-label {
+  color: #3b82f6 !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+  padding-bottom: 0.25rem !important;
+  border-bottom: 1px solid rgba(219, 234, 254, 0.5) !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.01em !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip .recharts-tooltip-item {
+  color: #1f2937 !important;
+  font-size: 0.875rem !important;
+  padding: 0.25rem 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip .recharts-tooltip-item-name {
+  font-weight: 500 !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip .recharts-tooltip-item-value {
+  font-weight: 600 !important;
+  color: #4b5563 !important;
+}
+
+/* Dark mode styles for tooltip */
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+  
+  .recharts-tooltip-wrapper .recharts-default-tooltip {
+    background-color: rgba(31, 41, 55, 0.95) !important;
+    border: 1px solid rgba(55, 65, 81, 0.8) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.15) !important;
+    backdrop-filter: blur(6px) !important;
+  }
+  
+  .recharts-tooltip-wrapper .recharts-default-tooltip .recharts-tooltip-label {
+    color: #60a5fa !important;
+    border-bottom: 1px solid rgba(55, 65, 81, 0.8) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  .recharts-tooltip-wrapper .recharts-default-tooltip .recharts-tooltip-item {
+    color: #e5e7eb !important;
+  }
+  
+  .recharts-tooltip-wrapper .recharts-default-tooltip .recharts-tooltip-item-value {
+    color: #d1d5db !important;
+  }
+}

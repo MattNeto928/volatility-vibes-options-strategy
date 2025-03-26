@@ -1,5 +1,7 @@
 # Options Spread Strategy Tool
 
+> **Credit:** This strategy is based on research by [Volatility Vibes (@VolatilityVibes)](https://www.youtube.com/watch?v=oW6MHjzxHpU) and their work on earnings volatility trading. The original methodology, analysis, and criteria used in this tool are derived from their research. This application is simply a frontend wrapper for their strategy (with some added LLM sprinkled in).
+
 A web application for analyzing stocks to identify potential options spread opportunities, especially for earnings plays. The tool analyzes stock volatility patterns, upcoming earnings, and options data to help identify trading opportunities based on specific criteria.
 
 ![App Screenshot](docs/screenshot.png)
@@ -40,7 +42,7 @@ A web application for analyzing stocks to identify potential options spread oppo
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/options-spread-strategy.git
+   git clone https://github.com/MattNeto928/volatility-vibes-options-strategy.git
    cd options-spread-strategy
    ```
 
